@@ -649,10 +649,13 @@
                 // Use fullscreen AR.js with multiple markers
                 // Try simpler approach: use gltf-model primitive instead of entity
                 container.innerHTML = `
-                    <a-scene arjs="detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceType: webcam; debugUIEnabled: false; trackingMethod: best; maxDetectionRate: 60; canvasWidth: 640; canvasHeight: 480;" vr-mode-ui="enabled: false">
+                    <a-scene 
+                        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" 
+                        renderer="logarithmicDepthBuffer: true; precision: mediump; antialias: true;" 
+                        vr-mode-ui="enabled: false">
                         
                         <!-- HIRO PATTERN MARKER (TEST MARKER - works from screens) -->
-                        <a-marker preset="hiro">
+                        <a-marker preset="hiro" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
                             <!-- LIGHTS for MeshStandardMaterial -->
                             <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
                             <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
@@ -669,7 +672,7 @@
                         </a-marker>
                         
                         <!-- Mars on Barcode Marker 0 -->
-                        <a-marker type="barcode" value="0">
+                        <a-marker type="barcode" value="0" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
                             <!-- LIGHTS for MeshStandardMaterial -->
                             <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
                             <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
@@ -686,7 +689,7 @@
                         </a-marker>
                         
                         <!-- Jupiter on Barcode Marker 1 -->
-                        <a-marker type="barcode" value="1">
+                        <a-marker type="barcode" value="1" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
                             <!-- LIGHTS for MeshStandardMaterial -->
                             <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
                             <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
