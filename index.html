@@ -271,6 +271,7 @@
             padding: 15px;
             margin-bottom: 15px;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 15px;
             transition: all 0.2s ease;
@@ -292,6 +293,7 @@
             border: 1px solid #eee;
             flex-shrink: 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-right: 10px; /* Added gap */
         }
 
         .marker-preview img {
@@ -402,8 +404,19 @@
         </div>
 
         <button onclick="downloadAllMarkers()" class="download-link">
-            📥 Descargar Todos los Marcadores (ZIP)
+            📥 Descargar todos los Marcadores
         </button>
+
+        <h4>🎨 Créditos 3D</h4>
+        <p style="font-size: 12px; color: #666; border-left: 3px solid #007AFF; padding-left: 10px; margin-bottom: 10px;">
+            Modelos (excepto Saturno y Sol) por <strong>Yanez Designs</strong> bajo licencia <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007AFF; text-decoration: none;">Creative Commons Attribution</a>.
+        </p>
+        <p style="font-size: 12px; color: #666; border-left: 3px solid #007AFF; padding-left: 10px; margin-bottom: 10px;">
+            "Saturn (planet)" (<a href="https://skfb.ly/6yw9I" target="_blank" style="color: #007AFF; text-decoration: none;">https://skfb.ly/6yw9I</a>) por <strong>SebastianSosnowski</strong> bajo licencia <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007AFF; text-decoration: none;">Creative Commons Attribution</a>.
+        </p>
+        <p style="font-size: 12px; color: #666; border-left: 3px solid #007AFF; padding-left: 10px;">
+            "Sun" (<a href="https://skfb.ly/6yGSx" target="_blank" style="color: #007AFF; text-decoration: none;">https://skfb.ly/6yGSx</a>) por <strong>SebastianSosnowski</strong> bajo licencia <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007AFF; text-decoration: none;">Creative Commons Attribution</a>.
+        </p>
 
         <h4>💡 Consejos</h4>
         <ul style="text-align: left; font-size: 13px; opacity: 0.8; padding-left: 20px; line-height: 1.6;">
@@ -445,12 +458,16 @@
 
         // Available models with barcode markers
         const markerConfig = [
-            { id: 0, model: 'Mars', emoji: '🔴', file: 'models/Mars_1_6792.glb', active: true },
-            { id: 1, model: 'Jupiter', emoji: '🪐', file: 'models/Jupiter_1_142984.glb', active: true },
-            { id: 2, model: 'Available', emoji: '➕', file: null, active: false },
-            { id: 3, model: 'Available', emoji: '➕', file: null, active: false },
-            { id: 4, model: 'Available', emoji: '➕', file: null, active: false },
-            { id: 5, model: 'Available', emoji: '➕', file: null, active: false }
+            { id: 0, model: 'Sol', file: 'models/sun.glb', active: true },
+            { id: 1, model: 'Mercurio', file: 'models/mercury.glb', active: true },
+            { id: 2, model: 'Venus', file: 'models/venus.glb', active: true },
+            { id: 3, model: 'Tierra', file: 'models/earth.glb', active: true },
+            { id: 4, model: 'Marte', file: 'models/mars.glb', active: true },
+            { id: 5, model: 'Júpiter', file: 'models/jupiter.glb', active: true },
+            { id: 6, model: 'Saturno', file: 'models/saturn.glb', active: true },
+            { id: 7, model: 'Urano', file: 'models/uranus.glb', active: true },
+            { id: 8, model: 'Neptuno', file: 'models/neptune.glb', active: true },
+            { id: 9, model: 'Plutón', file: 'models/pluto.glb', active: true }
         ];
 
         // Generate marker cards for each model
@@ -467,8 +484,7 @@
                     <img src="markers/hiro.png" alt="Marcador Hiro" style="width: 80px; height: 80px; object-fit: contain;">
                 </div>
                 <div class="marker-info">
-                    <h5>🟢 Marcador de Prueba Hiro</h5>
-                    <p>Marcador de patrón - ¡funciona desde pantallas! Úsalo para probar la detección AR.</p>
+                    <h5>Marcador de Prueba Hiro</h5>
                     <span class="marker-badge" style="background: #4CAF50;">MARCADOR DE PRUEBA</span>
                 </div>
                 <button class="download-btn" style="background: #4CAF50;" onclick="downloadMarker('markers/hiro.png', 'Hiro_Prueba')">
@@ -488,8 +504,7 @@
                             <img src="markers/3x3_parity_6_5/${marker.id}.png" alt="Marcador ${marker.id}" style="width: 80px; height: 80px; object-fit: contain;">
                         </div>
                         <div class="marker-info">
-                            <h5>${marker.emoji} ${marker.model}</h5>
-                            <p>Apunta la cámara al marcador ${marker.id} para ver ${marker.model}</p>
+                            <h5>${marker.model}</h5>
                             <span class="marker-badge">CÓDIGO DE BARRAS 3x3 ${marker.id}</span>
                         </div>
                         <button class="download-btn" onclick="downloadMarker('markers/3x3_parity_6_5/${marker.id}.png', '${marker.model}_${marker.id}')">
@@ -504,7 +519,7 @@
                             <img src="markers/3x3_parity_6_5/${marker.id}.png" alt="Marcador ${marker.id}" style="width: 80px; height: 80px; object-fit: contain;">
                         </div>
                         <div class="marker-info">
-                            <h5>${marker.emoji} Marcador ${marker.id}</h5>
+                            <h5>Marcador ${marker.id}</h5>
                             <p>Disponible para futuros modelos 3D</p>
                             <span class="marker-badge" style="background: #999;">CÓDIGO DE BARRAS 3x3 ${marker.id}</span>
                         </div>
@@ -641,10 +656,11 @@
                 // Inject AR scene with ALL models and their unique markers
                 const container = document.getElementById('sceneContainer');
 
-                console.log('� Initializing WebAR with 3 markers:');
-                console.log('  🟢 Hiro (test marker - works from screens)');
-                console.log('  🔴 Mars (barcode 0 - print required)');
-                console.log('  🪐 Jupiter (barcode 1 - print required)');
+                console.log('🚀 Initializing WebAR with 10 planetary markers:');
+                console.log('  🟢 Hiro (Test - Earth)');
+                console.log('  0: Sun, 1: Mercury, 2: Venus, 3: Earth');
+                console.log('  4: Mars, 5: Jupiter, 6: Saturn, 7: Uranus');
+                console.log('  8: Neptune, 9: Pluto');
 
                 // Use fullscreen AR.js with multiple markers
                 // Try simpler approach: use gltf-model primitive instead of entity
@@ -654,76 +670,81 @@
                         renderer="logarithmicDepthBuffer: true; precision: mediump; antialias: true;" 
                         vr-mode-ui="enabled: false">
                         
-                        <!-- HIRO PATTERN MARKER (TEST MARKER - works from screens) -->
+                        <!-- HIRO PATTERN MARKER (TEST MARKER) -->
                         <a-marker preset="hiro" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <!-- LIGHTS for MeshStandardMaterial -->
                             <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
                             <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
-                            
-                            <!-- Mars GLB model -->
-                            <a-entity
-                                id="hiroTestModel"
-                                gltf-model="url(models/Mars_1_6792.glb)"
-                                position="0 0.5 0"
-                                scale="0.001 0.001 0.001"
-                                rotation="0 0 0"
-                                animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear">
-                            </a-entity>
+                            <a-entity gltf-model="url(models/earth.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
                         
-                        <!-- Mars on Barcode Marker 0 -->
+                        <!-- Marker 0: Sun -->
                         <a-marker type="barcode" value="0" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <!-- LIGHTS for MeshStandardMaterial -->
                             <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
                             <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
-                            
-                            <!-- Mars GLB model with correct scale -->
-                            <a-entity
-                                id="marsModel"
-                                gltf-model="url(models/Mars_1_6792.glb)"
-                                position="0 0.5 0"
-                                scale="0.001 0.001 0.001"
-                                rotation="0 0 0"
-                                animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear">
-                            </a-entity>
+                            <a-entity gltf-model="url(models/sun.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
-                        
-                        <!-- Jupiter on Barcode Marker 1 -->
+
+                        <!-- Marker 1: Mercury -->
                         <a-marker type="barcode" value="1" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <!-- LIGHTS for MeshStandardMaterial -->
                             <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
                             <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
-                            
-                            <!-- Jupiter GLB model with correct scale -->
-                            <a-entity
-                                id="jupiterModel"
-                                gltf-model="url(models/Jupiter_1_142984.glb)"
-                                position="0 0.5 0"
-                                scale="0.001 0.001 0.001"
-                                rotation="0 0 0"
-                                animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear">
-                            </a-entity>
+                            <a-entity gltf-model="url(models/mercury.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
-                        
-                        <!-- TEST MARKERS 2-5 (to verify detection) -->
-                        <a-marker type="barcode" value="2">
-                            <a-box position="0 0.5 0" depth="0.5" height="0.5" width="0.5" material="color: yellow;"></a-box>
-                            <a-text value="Marker 2" position="0 1.5 0" align="center" color="white" scale="2 2 2"></a-text>
+
+                        <!-- Marker 2: Venus -->
+                        <a-marker type="barcode" value="2" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/venus.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
-                        
-                        <a-marker type="barcode" value="3">
-                            <a-box position="0 0.5 0" depth="0.5" height="0.5" width="0.5" material="color: green;"></a-box>
-                            <a-text value="Marker 3" position="0 1.5 0" align="center" color="white" scale="2 2 2"></a-text>
+
+                        <!-- Marker 3: Earth -->
+                        <a-marker type="barcode" value="3" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/earth.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
-                        
-                        <a-marker type="barcode" value="4">
-                            <a-box position="0 0.5 0" depth="0.5" height="0.5" width="0.5" material="color: purple;"></a-box>
-                            <a-text value="Marker 4" position="0 1.5 0" align="center" color="white" scale="2 2 2"></a-text>
+
+                        <!-- Marker 4: Mars -->
+                        <a-marker type="barcode" value="4" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/mars.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
-                        
-                        <a-marker type="barcode" value="5">
-                            <a-box position="0 0.5 0" depth="0.5" height="0.5" width="0.5" material="color: orange;"></a-box>
-                            <a-text value="Marker 5" position="0 1.5 0" align="center" color="white" scale="2 2 2"></a-text>
+
+                        <!-- Marker 5: Jupiter -->
+                        <a-marker type="barcode" value="5" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/jupiter.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        </a-marker>
+
+                        <!-- Marker 6: Saturn -->
+                        <a-marker type="barcode" value="6" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/saturn.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        </a-marker>
+
+                        <!-- Marker 7: Uranus -->
+                        <a-marker type="barcode" value="7" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/uranus.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        </a-marker>
+
+                        <!-- Marker 8: Neptune -->
+                        <a-marker type="barcode" value="8" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/neptune.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        </a-marker>
+
+                        <!-- Marker 9: Pluto -->
+                        <a-marker type="barcode" value="9" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="0.75"></a-light>
+                            <a-light type="directional" color="#fff" intensity="1.5" position="1 2 1"></a-light>
+                            <a-entity gltf-model="url(models/pluto.glb)" position="0 0.5 0" scale="0.5 0.5 0.5" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                         </a-marker>
                         
                         <a-entity camera></a-entity>
@@ -779,41 +800,26 @@
                             });
                         }
 
-                        // Barcode Marker 0 (Mars)
-                        const marker0 = document.querySelector('a-marker[value="0"]');
+                        // Dynamic listeners for all configured markers
+                        markerConfig.forEach(marker => {
+                            if (!marker.active) return;
+                            
+                            const el = document.querySelector(`a-marker[value="${marker.id}"]`);
+                            if (el) {
+                                el.addEventListener('markerFound', () => {
+                                    console.log(`${marker.model} detected`);
+                                    statusIndicator.textContent = `¡${marker.model} detectado!`;
+                                    statusIndicator.classList.remove('error');
+                                    statusIndicator.classList.add('success', 'show');
+                                });
 
-                        if (marker0) {
-                            marker0.addEventListener('markerFound', () => {
-                                console.log('🔴 Mars marker detected');
-                                statusIndicator.textContent = '🔴 ¡Marte detectado!';
-                                statusIndicator.classList.remove('error');
-                                statusIndicator.classList.add('success', 'show');
-                            });
-
-                            marker0.addEventListener('markerLost', () => {
-                                statusIndicator.textContent = 'Buscando marcadores...';
-                                statusIndicator.classList.remove('success');
-                                statusIndicator.classList.add('show');
-                            });
-                        }
-
-                        // Barcode Marker 1 (Jupiter)
-                        const marker1 = document.querySelector('a-marker[value="1"]');
-
-                        if (marker1) {
-                            marker1.addEventListener('markerFound', () => {
-                                console.log('🪐 Jupiter marker detected');
-                                statusIndicator.textContent = '🪐 ¡Júpiter detectado!';
-                                statusIndicator.classList.remove('error');
-                                statusIndicator.classList.add('success', 'show');
-                            });
-
-                            marker1.addEventListener('markerLost', () => {
-                                statusIndicator.textContent = 'Buscando marcadores...';
-                                statusIndicator.classList.remove('success');
-                                statusIndicator.classList.add('show');
-                            });
-                        }
+                                el.addEventListener('markerLost', () => {
+                                    statusIndicator.textContent = 'Buscando marcadores...';
+                                    statusIndicator.classList.remove('success');
+                                    statusIndicator.classList.add('show');
+                                });
+                            }
+                        });
 
                         // Model setup - using a-gltf-model primitives now
                         const hiroEntity = document.querySelector('#hiroTestModel');
