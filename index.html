@@ -1,99 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WebAR Visualization</title>
+    <title>Exploradores del Espacio AR</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    
+
     <style>
-        * { box-sizing: border-box; }
-        body { 
-            margin: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-            background: #000; 
+        * {
+            box-sizing: border-box;
         }
-        
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+        }
+
         /* Permission overlay */
         #permissionOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 5000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; text-align: center; padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
         }
 
-        #permissionOverlay h2 { font-size: 1.8em; margin-bottom: 10px; font-weight: 300; }
-        #permissionOverlay p { opacity: 0.8; margin: 10px 0; line-height: 1.5; }
+        #permissionOverlay h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        #permissionOverlay p {
+            opacity: 0.8;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
 
         /* Minimal UI buttons - top right corner */
-        .ui-overlay { 
-            position: fixed; top: 12px; right: 12px; z-index: 1000; 
-            display: flex; gap: 8px; 
+        .ui-overlay {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
         }
-        
-        .icon-btn { 
-            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.3); color: #fff; 
-            width: 44px; height: 44px; border-radius: 50%; cursor: pointer; 
-            backdrop-filter: blur(10px); font-size: 18px; 
-            display: flex; align-items: center; justify-content: center;
+
+        .icon-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.2s ease;
         }
 
-        .icon-btn:hover { background: rgba(0, 0, 0, 0.5); border-color: rgba(255,255,255,0.6); }
-        .icon-btn:active { transform: scale(0.95); }
+        .icon-btn:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
 
         .primary-btn {
-            background: rgba(255, 255, 255, 0.9); border: none; color: #000; 
-            padding: 14px 28px; border-radius: 24px; cursor: pointer; 
-            font-weight: 600; font-size: 15px; transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: #000;
+            padding: 14px 28px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s ease;
         }
 
-        .primary-btn:hover { background: #fff; transform: translateY(-1px); }
-        .primary-btn:active { transform: translateY(0); }
+        .primary-btn:hover {
+            background: #fff;
+            transform: translateY(-1px);
+        }
+
+        .primary-btn:active {
+            transform: translateY(0);
+        }
 
         /* Settings panel - slide from right */
-        #configPanel { 
-            position: fixed; top: 0; right: -320px; width: 300px; height: 100%; 
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);
-            padding: 20px; z-index: 2000; 
-            color: #333; overflow-y: auto;
-            transition: right 0.3s ease;
-            box-shadow: -2px 0 20px rgba(0,0,0,0.3);
+        #configPanel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 320px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            padding-top: 60px; /* Space for close button */
+            z-index: 2000;
+            color: #333;
+            overflow-y: auto;
+            transition: right 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: -2px 0 20px rgba(0, 0, 0, 0.3);
         }
 
-        #configPanel.open { right: 0; }
+        #configPanel.open {
+            right: 0;
+        }
 
-        #configPanel h3 { margin-top: 0; font-size: 1.3em; font-weight: 600; }
-        #configPanel p { font-size: 14px; line-height: 1.5; opacity: 0.8; }
+        #configPanel h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        #configPanel h4 {
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #444;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        #configPanel p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
 
         .close-btn {
-            position: absolute; top: 15px; right: 15px; 
-            background: transparent; border: none; font-size: 24px; 
-            cursor: pointer; color: #666; padding: 5px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(0,0,0,0.1);
+            transform: rotate(90deg);
         }
 
         .download-link {
-            display: inline-block; margin: 10px 0;
-            padding: 10px 20px; background: #007AFF; color: white;
-            border-radius: 8px; text-decoration: none; font-weight: 600;
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px 20px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0,122,255,0.2);
+        }
+
+        .download-link:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .download-link:active {
+            transform: translateY(1px);
         }
 
         /* Status indicator - bottom center */
         #statusIndicator {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
-            color: white; padding: 8px 16px; border-radius: 20px;
-            font-size: 12px; z-index: 1000; display: none;
-            border: 1px solid rgba(255,255,255,0.2);
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        #statusIndicator.show { display: block; }
-        #statusIndicator.success { background: rgba(76, 217, 100, 0.8); }
-        #statusIndicator.error { background: rgba(255, 59, 48, 0.8); }
+        #statusIndicator.show {
+            display: block;
+        }
+
+        #statusIndicator.success {
+            background: rgba(76, 217, 100, 0.8);
+        }
+
+        #statusIndicator.error {
+            background: rgba(255, 59, 48, 0.8);
+        }
 
         /* Loading spinner */
         .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-top: 3px solid white;
             border-radius: 50%;
             width: 40px;
@@ -103,8 +244,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .warning-box {
@@ -120,23 +266,32 @@
         /* Marker cards */
         .marker-card {
             background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 12px;
+            border: 1px solid #eee;
+            border-radius: 16px;
             padding: 15px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .marker-card:hover {
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            border-color: #ddd;
         }
 
         .marker-preview {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: white;
-            border-radius: 8px;
-            padding: 8px;
-            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 5px;
+            border: 1px solid #eee;
             flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .marker-preview img {
@@ -147,11 +302,13 @@
 
         .marker-info {
             flex: 1;
+            min-width: 0; /* Allows text truncation */
         }
 
         .marker-info h5 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            font-weight: 700;
             color: #333;
         }
 
@@ -159,6 +316,7 @@
             margin: 0;
             font-size: 12px;
             color: #666;
+            line-height: 1.4;
         }
 
         .marker-badge {
@@ -176,16 +334,24 @@
             background: #007AFF;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 8px 14px;
+            border-radius: 18px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,122,255,0.2);
         }
 
         .download-btn:hover {
             background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,122,255,0.3);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -194,67 +360,70 @@
 
     <!-- Permission/Start Overlay -->
     <div id="permissionOverlay">
-        <h2>WebAR Visualization</h2>
-        <p>Point your camera at AR markers to see 3D models.</p>
-        
+        <h2>🚀 ¡Exploradores del Espacio! 🌟</h2>
+        <p>¡Prepárate para una aventura increíble! Apunta tu cámara a los marcadores mágicos y verás planetas en 3D
+            flotando frente a ti. 🪐✨</p>
+
         <div id="loadingSpinner" style="display: none;">
             <div class="spinner"></div>
-            <p>Initializing camera...</p>
+            <p>Preparando tu nave espacial...</p>
         </div>
-        <button class="primary-btn" id="startBtn" onclick="initAR()">Start AR Experience</button>
+        <button class="primary-btn" id="startBtn" onclick="initAR()">¡Comenzar Aventura Espacial! 🚀</button>
     </div>
 
     <!-- Minimal UI Controls -->
     <div class="ui-overlay" id="mainUI" style="display: none;">
-        <button class="icon-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
-        <button class="icon-btn" onclick="toggleConfig()" title="Settings">⚙</button>
+        <button class="icon-btn" onclick="toggleFullscreen()" title="Pantalla completa">⛶</button>
+        <button class="icon-btn" onclick="toggleConfig()" title="Configuración">⚙</button>
     </div>
 
     <!-- Settings Panel (Slides from right) -->
     <div id="configPanel">
-        <button class="close-btn" onclick="toggleConfig()">×</button>
-        <h3>Settings</h3>
-        
-        <h4 style="margin-top: 25px;">📱 Share App</h4>
-        <p style="font-size: 13px;">Scan to open this AR experience:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            <div id="qrCode" style="display: inline-block; padding: 10px; background: white; border-radius: 12px; border: 2px dashed #ddd;">
+        <button class="close-btn" onclick="toggleConfig()" aria-label="Cerrar configuración">×</button>
+        <h3>Configuración</h3>
+
+        <h4>📱 Compartir App</h4>
+        <p>Escanea para abrir esta experiencia AR:</p>
+        <div style="text-align: center; margin: 20px 0;">
+            <div id="qrCode"
+                style="display: inline-block; padding: 15px; background: white; border-radius: 16px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                 <!-- QR code will be inserted here -->
             </div>
         </div>
-        <button onclick="shareApp()" class="download-link" style="display: block; text-align: center; width: 100%; margin: 10px 0;">
-            📤 Share Link
+        <button onclick="shareApp()" class="download-link">
+            📤 Compartir Enlace
         </button>
-        
-        <h4 style="margin-top: 25px;">📦 AR Markers (Per Model)</h4>
-        <p style="font-size: 13px;">Each model has a unique AR marker. Download and print them:</p>
-        
+
+        <h4>📦 Marcadores AR (Por Modelo)</h4>
+        <p>Cada modelo tiene un marcador AR único. Descárgalos e imprímelos:</p>
+
         <div id="markerList" style="margin: 15px 0;">
             <!-- Markers will be dynamically inserted here -->
         </div>
-        
-        <button onclick="downloadAllMarkers()" class="download-link" style="display: block; text-align: center; width: 100%; margin: 10px 0;">
-            📥 Download All Markers (ZIP)
+
+        <button onclick="downloadAllMarkers()" class="download-link">
+            📥 Descargar Todos los Marcadores (ZIP)
         </button>
 
-        <h4 style="margin-top: 25px;">Tips</h4>
-        <ul style="text-align: left; font-size: 13px; opacity: 0.8; padding-left: 20px;">
-            <li><strong>🟢 Test with Hiro marker first</strong> - works from screens!</li>
-            <li>Share the QR code to let others access the app</li>
-            <li><strong>Each model has its own AR marker</strong></li>
-            <li><strong>Barcode markers need to be PRINTED</strong> (don't work well from screens)</li>
-            <li>Ensure good lighting</li>
-            <li>Keep marker flat and visible</li>
-            <li>Point camera at different markers to see different models!</li>
+        <h4>💡 Consejos</h4>
+        <ul style="text-align: left; font-size: 13px; opacity: 0.8; padding-left: 20px; line-height: 1.6;">
+            <li><strong>🟢 Prueba primero con el marcador Hiro</strong> - ¡funciona desde pantallas!</li>
+            <li>Comparte el código QR para que otros accedan a la app</li>
+            <li><strong>Cada modelo tiene su propio marcador AR</strong></li>
+            <li><strong>Los marcadores de código de barras deben IMPRIMIRSE</strong> (no funcionan bien desde pantallas)
+            </li>
+            <li>Asegúrate de tener buena iluminación</li>
+            <li>Mantén el marcador plano y visible</li>
+            <li>¡Apunta la cámara a diferentes marcadores para ver diferentes modelos!</li>
         </ul>
 
-        <div class="warning-box" style="margin-top: 20px;">
-            <strong>Note:</strong> This app uses your device camera locally. No data is transmitted.
+        <div class="warning-box" style="margin-top: 25px;">
+            <strong>Nota:</strong> Esta app usa tu cámara localmente. No se transmiten datos.
         </div>
     </div>
 
     <!-- Status Indicator -->
-    <div id="statusIndicator">Searching for marker...</div>
+    <div id="statusIndicator">Buscando marcador...</div>
 
     <!-- AR Scene Container -->
     <div id="sceneContainer"></div>
@@ -265,15 +434,15 @@
             console.error('🚨 Global error caught:', e.message, e.filename, e.lineno);
             console.error('  Error object:', e.error);
         });
-        
+
         window.addEventListener('unhandledrejection', (e) => {
             console.error('🚨 Unhandled promise rejection:', e.reason);
         });
-        
+
         let markerFound = false;
         let currentScene = null;
         let currentAppUrl = window.location.href;
-        
+
         // Available models with barcode markers
         const markerConfig = [
             { id: 0, model: 'Mars', emoji: '🔴', file: 'models/Mars_1_6792.glb', active: true },
@@ -288,43 +457,43 @@
         function generateMarkerCards() {
             const markerList = document.getElementById('markerList');
             markerList.innerHTML = '';
-            
+
             // Add Hiro test marker first
             const hiroCard = document.createElement('div');
             hiroCard.className = 'marker-card';
             hiroCard.style.border = '2px solid #4CAF50';
             hiroCard.innerHTML = `
                 <div class="marker-preview">
-                    <img src="markers/hiro.png" alt="Hiro Marker" style="width: 80px; height: 80px; object-fit: contain;">
+                    <img src="markers/hiro.png" alt="Marcador Hiro" style="width: 80px; height: 80px; object-fit: contain;">
                 </div>
                 <div class="marker-info">
-                    <h5>🟢 Hiro Test Marker</h5>
-                    <p>Pattern marker - works from screens! Use this to test AR detection.</p>
-                    <span class="marker-badge" style="background: #4CAF50;">TEST MARKER</span>
+                    <h5>🟢 Marcador de Prueba Hiro</h5>
+                    <p>Marcador de patrón - ¡funciona desde pantallas! Úsalo para probar la detección AR.</p>
+                    <span class="marker-badge" style="background: #4CAF50;">MARCADOR DE PRUEBA</span>
                 </div>
-                <button class="download-btn" style="background: #4CAF50;" onclick="downloadMarker('markers/hiro.png', 'Hiro_Test')">
-                    📥 Download
+                <button class="download-btn" style="background: #4CAF50;" onclick="downloadMarker('markers/hiro.png', 'Hiro_Prueba')">
+                    📥 Descargar
                 </button>
             `;
             markerList.appendChild(hiroCard);
-            
+
             markerConfig.forEach(marker => {
                 const card = document.createElement('div');
                 card.className = 'marker-card';
-                
+
                 if (marker.active) {
                     // Active marker with model - USING 3x3 MARKERS NOW
                     card.innerHTML = `
                         <div class="marker-preview">
-                            <img src="markers/3x3_parity_6_5/${marker.id}.png" alt="Marker ${marker.id}" style="width: 80px; height: 80px; object-fit: contain;">
+                            <img src="markers/3x3_parity_6_5/${marker.id}.png" alt="Marcador ${marker.id}" style="width: 80px; height: 80px; object-fit: contain;">
                         </div>
                         <div class="marker-info">
                             <h5>${marker.emoji} ${marker.model}</h5>
-                            <p>Point camera at marker ${marker.id} to see ${marker.model}</p>
-                            <span class="marker-badge">3x3 BARCODE ${marker.id}</span>
+                            <p>Apunta la cámara al marcador ${marker.id} para ver ${marker.model}</p>
+                            <span class="marker-badge">CÓDIGO DE BARRAS 3x3 ${marker.id}</span>
                         </div>
                         <button class="download-btn" onclick="downloadMarker('markers/3x3_parity_6_5/${marker.id}.png', '${marker.model}_${marker.id}')">
-                            📥 Download
+                            📥 Descargar
                         </button>
                     `;
                 } else {
@@ -332,19 +501,19 @@
                     card.style.opacity = '0.5';
                     card.innerHTML = `
                         <div class="marker-preview">
-                            <img src="markers/3x3_parity_6_5/${marker.id}.png" alt="Marker ${marker.id}" style="width: 80px; height: 80px; object-fit: contain;">
+                            <img src="markers/3x3_parity_6_5/${marker.id}.png" alt="Marcador ${marker.id}" style="width: 80px; height: 80px; object-fit: contain;">
                         </div>
                         <div class="marker-info">
-                            <h5>${marker.emoji} Marker ${marker.id}</h5>
-                            <p>Available for future 3D models</p>
-                            <span class="marker-badge" style="background: #999;">3x3 BARCODE ${marker.id}</span>
+                            <h5>${marker.emoji} Marcador ${marker.id}</h5>
+                            <p>Disponible para futuros modelos 3D</p>
+                            <span class="marker-badge" style="background: #999;">CÓDIGO DE BARRAS 3x3 ${marker.id}</span>
                         </div>
-                        <button class="download-btn" style="background: #999;" onclick="downloadMarker('markers/3x3_parity_6_5/${marker.id}.png', 'Marker_${marker.id}')">
-                            📥 Download
+                        <button class="download-btn" style="background: #999;" onclick="downloadMarker('markers/3x3_parity_6_5/${marker.id}.png', 'Marcador_${marker.id}')">
+                            📥 Descargar
                         </button>
                     `;
                 }
-                
+
                 markerList.appendChild(card);
             });
         }
@@ -357,9 +526,9 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             const status = document.getElementById('statusIndicator');
-            status.textContent = `✓ ${name} marker downloaded`;
+            status.textContent = `✓ Marcador ${name} descargado`;
             status.classList.add('success', 'show');
             setTimeout(() => {
                 status.classList.remove('show', 'success');
@@ -369,18 +538,18 @@
         // Download all markers
         async function downloadAllMarkers() {
             const status = document.getElementById('statusIndicator');
-            status.textContent = 'Downloading all markers...';
+            status.textContent = 'Descargando todos los marcadores...';
             status.classList.add('show');
-            
+
             // Download active markers (now using 3x3)
             const activeMarkers = markerConfig.filter(m => m.active);
             for (const marker of activeMarkers) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 downloadMarker(`markers/3x3_parity_6_5/${marker.id}.png`, `${marker.model}_${marker.id}`);
             }
-            
+
             setTimeout(() => {
-                status.textContent = `✓ ${activeMarkers.length} markers downloaded`;
+                status.textContent = `✓ ${activeMarkers.length} marcadores descargados`;
                 status.classList.add('success', 'show');
                 setTimeout(() => {
                     status.classList.remove('show', 'success');
@@ -399,34 +568,34 @@
         // Share app functionality
         async function shareApp() {
             const status = document.getElementById('statusIndicator');
-            
+
             // Use Web Share API if available
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        title: 'WebAR Visualization',
-                        text: 'Check out this AR experience!',
+                        title: 'Exploradores del Espacio AR',
+                        text: '¡Mira esta increíble experiencia AR!',
                         url: currentAppUrl
                     });
-                    status.textContent = '✓ Shared successfully';
+                    status.textContent = '✓ Compartido exitosamente';
                     status.classList.add('success', 'show');
                     setTimeout(() => {
                         status.classList.remove('show', 'success');
                     }, 2000);
                 } catch (err) {
-                    console.log('Share cancelled or failed:', err);
+                    console.log('Compartir cancelado o fallido:', err);
                 }
             } else {
                 // Fallback: Copy to clipboard
                 try {
                     await navigator.clipboard.writeText(currentAppUrl);
-                    status.textContent = '✓ Link copied to clipboard';
+                    status.textContent = '✓ Enlace copiado al portapapeles';
                     status.classList.add('success', 'show');
                     setTimeout(() => {
                         status.classList.remove('show', 'success');
                     }, 2000);
                 } catch (err) {
-                    status.textContent = '✕ Could not copy link';
+                    status.textContent = '✕ No se pudo copiar el enlace';
                     status.classList.add('error', 'show');
                     setTimeout(() => {
                         status.classList.remove('show', 'error');
@@ -454,10 +623,10 @@
                 spinner.style.display = 'block';
 
                 console.log('Checking camera API support...');
-                
+
                 // Check if getUserMedia is supported
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error('Camera API not supported in this browser. Please use Chrome, Firefox, or Safari.');
+                    throw new Error('La API de cámara no es compatible con este navegador. Por favor usa Chrome, Firefox o Safari.');
                 }
 
                 console.log('Camera API is supported');
@@ -466,17 +635,17 @@
                 // Hide overlay and show UI - let AR.js handle camera access
                 overlay.style.display = 'none';
                 document.getElementById('mainUI').style.display = 'flex';
-                statusIndicator.textContent = 'Initializing AR...';
+                statusIndicator.textContent = 'Inicializando AR...';
                 statusIndicator.classList.add('show');
 
                 // Inject AR scene with ALL models and their unique markers
                 const container = document.getElementById('sceneContainer');
-                
+
                 console.log('� Initializing WebAR with 3 markers:');
                 console.log('  🟢 Hiro (test marker - works from screens)');
                 console.log('  🔴 Mars (barcode 0 - print required)');
                 console.log('  🪐 Jupiter (barcode 1 - print required)');
-                
+
                 // Use fullscreen AR.js with multiple markers
                 // Try simpler approach: use gltf-model primitive instead of entity
                 container.innerHTML = `
@@ -557,19 +726,19 @@
                         <a-entity camera></a-entity>
                     </a-scene>
                 `;
-                
+
                 console.log('AR scene created with Mars (Marker 0) and Jupiter (Marker 1)');
                 console.log('Test markers 2-5 added for detection verification');
 
                 // Store scene reference and wait for AR.js to initialize
                 setTimeout(() => {
                     currentScene = document.querySelector('a-scene');
-                    
+
                     if (!currentScene) {
                         console.error('A-Frame scene not found');
                         return;
                     }
-                    
+
                     console.log('A-Frame scene found, setting up listeners...');
                     console.log('Scene components:', Object.keys(currentScene.components));
                     console.log('Scene systems:', Object.keys(currentScene.systems));
@@ -577,14 +746,14 @@
                     // Listen for AR.js events
                     currentScene.addEventListener('arjs-video-loaded', () => {
                         console.log('✅ AR.js video loaded successfully');
-                        statusIndicator.textContent = '✓ Camera initialized - Searching for markers...';
+                        statusIndicator.textContent = '✓ Cámara inicializada - Buscando marcadores...';
                         statusIndicator.classList.remove('error');
                         statusIndicator.classList.add('show');
                     });
 
                     currentScene.addEventListener('camera-error', (error) => {
                         console.error('❌ AR.js camera error:', error);
-                        statusIndicator.textContent = '✕ Camera initialization failed';
+                        statusIndicator.textContent = '✕ Falló la inicialización de la cámara';
                         statusIndicator.classList.add('error', 'show');
                     });
 
@@ -595,97 +764,97 @@
                         if (hiroMarker) {
                             hiroMarker.addEventListener('markerFound', () => {
                                 console.log('🟢 Hiro marker detected');
-                                statusIndicator.textContent = '🟢 Hiro detected!';
+                                statusIndicator.textContent = '🟢 ¡Hiro detectado!';
                                 statusIndicator.classList.remove('error');
                                 statusIndicator.classList.add('success', 'show');
                             });
 
                             hiroMarker.addEventListener('markerLost', () => {
-                                statusIndicator.textContent = 'Searching for markers...';
+                                statusIndicator.textContent = 'Buscando marcadores...';
                                 statusIndicator.classList.remove('success');
                                 statusIndicator.classList.add('show');
                             });
                         }
-                        
+
                         // Barcode Marker 0 (Mars)
                         const marker0 = document.querySelector('a-marker[value="0"]');
-                        
+
                         if (marker0) {
                             marker0.addEventListener('markerFound', () => {
                                 console.log('🔴 Mars marker detected');
-                                statusIndicator.textContent = '🔴 Mars detected!';
+                                statusIndicator.textContent = '🔴 ¡Marte detectado!';
                                 statusIndicator.classList.remove('error');
                                 statusIndicator.classList.add('success', 'show');
                             });
 
                             marker0.addEventListener('markerLost', () => {
-                                statusIndicator.textContent = 'Searching for markers...';
+                                statusIndicator.textContent = 'Buscando marcadores...';
                                 statusIndicator.classList.remove('success');
                                 statusIndicator.classList.add('show');
                             });
                         }
-                        
+
                         // Barcode Marker 1 (Jupiter)
                         const marker1 = document.querySelector('a-marker[value="1"]');
-                        
+
                         if (marker1) {
                             marker1.addEventListener('markerFound', () => {
                                 console.log('🪐 Jupiter marker detected');
-                                statusIndicator.textContent = '🪐 Jupiter detected!';
+                                statusIndicator.textContent = '🪐 ¡Júpiter detectado!';
                                 statusIndicator.classList.remove('error');
                                 statusIndicator.classList.add('success', 'show');
                             });
 
                             marker1.addEventListener('markerLost', () => {
-                                statusIndicator.textContent = 'Searching for markers...';
+                                statusIndicator.textContent = 'Buscando marcadores...';
                                 statusIndicator.classList.remove('success');
                                 statusIndicator.classList.add('show');
                             });
                         }
-                        
+
                         // Model setup - using a-gltf-model primitives now
                         const hiroEntity = document.querySelector('#hiroTestModel');
                         const marsEntity = document.querySelector('#marsModel');
                         const jupiterEntity = document.querySelector('#jupiterModel');
-                        
+
                         console.log('🔍 === GLTF MODEL DEBUGGING ===');
-                        
+
                         if (hiroEntity) {
                             console.log('✓ Hiro model entity found:', hiroEntity.tagName);
                             console.log('  - gltf-model attribute:', hiroEntity.getAttribute('gltf-model'));
                             console.log('  - Has gltf-model component?', hiroEntity.components['gltf-model'] !== undefined);
-                            
+
                             // Check if component loaded
                             if (hiroEntity.components['gltf-model']) {
                                 console.log('  - Component data:', hiroEntity.components['gltf-model'].data);
                                 console.log('  - Component loaded?', !!hiroEntity.components['gltf-model'].model);
                             }
-                            
+
                             console.log('  - Object3D:', hiroEntity.object3D);
                             console.log('  - Children count:', hiroEntity.object3D?.children.length);
-                            
+
                             // Listen for ALL possible events
                             hiroEntity.addEventListener('loaded', () => {
                                 console.log('✅ Hiro: "loaded" event fired');
                                 console.log('  - Object3D children after load:', hiroEntity.object3D.children.length);
                             });
-                            
+
                             hiroEntity.addEventListener('model-loaded', (e) => {
                                 console.log('✅ Hiro: "model-loaded" event fired!', e.detail);
                                 console.log('  - Model object:', e.detail.model);
                                 console.log('  - Model has meshes?', e.detail.model.children.length > 0);
-                                statusIndicator.textContent = '✅ Mars model loaded!';
+                                statusIndicator.textContent = '✅ ¡Modelo de Marte cargado!';
                                 statusIndicator.classList.add('success', 'show');
                             });
-                            
+
                             hiroEntity.addEventListener('model-error', (e) => {
                                 console.error('❌ Hiro: "model-error" event:', e.detail);
                                 console.error('  - Error message:', e.detail?.message);
                                 console.error('  - Error source:', e.detail?.src);
-                                statusIndicator.textContent = '❌ Model loading error';
+                                statusIndicator.textContent = '❌ Error cargando modelo';
                                 statusIndicator.classList.add('error', 'show');
                             });
-                            
+
                             // Monitor the component initialization
                             setTimeout(() => {
                                 const component = hiroEntity.components['gltf-model'];
@@ -696,20 +865,20 @@
                                     loader: component?.loader
                                 });
                             }, 1000);
-                            
+
                             // Check component state after a delay
                             setTimeout(() => {
                                 console.log('⏱️ Hiro model after 3s:');
                                 console.log('  - ENTITY scale (should be 50):', hiroEntity.object3D.scale);
                                 console.log('  - ENTITY position:', hiroEntity.object3D.position);
                                 console.log('  - ENTITY visible:', hiroEntity.object3D.visible);
-                                
+
                                 const model = hiroEntity.components['gltf-model']?.model;
                                 if (model) {
                                     console.log('  - MODEL scale (internal):', model.scale);
                                     console.log('  - MODEL visible:', model.visible);
                                     console.log('  - MODEL children count:', model.children.length);
-                                    
+
                                     // Calculate actual bounding box to see real size
                                     const bbox = new THREE.Box3().setFromObject(model);
                                     const size = new THREE.Vector3();
@@ -717,7 +886,7 @@
                                     console.log('  - MODEL BOUNDING BOX SIZE:', size);
                                     console.log('  - MODEL CENTER:', bbox.getCenter(new THREE.Vector3()));
                                     console.log('  - BOX min:', bbox.min, 'max:', bbox.max);
-                                    
+
                                     // Check if model has meshes and their materials
                                     model.traverse((node) => {
                                         if (node.isMesh) {
@@ -728,13 +897,13 @@
                                             console.log('    * material opacity:', node.material?.opacity);
                                             console.log('    * renderOrder:', node.renderOrder);
                                             console.log('    * frustumCulled:', node.frustumCulled);
-                                            
+
                                             // Force mesh visibility and DISABLE frustum culling
                                             node.visible = true;
                                             node.frustumCulled = false; // CRITICAL: Disable frustum culling for AR
                                             node.renderOrder = 999; // Force rendering priority (higher = rendered first)
                                             node.matrixAutoUpdate = true; // Ensure transforms update
-                                            
+
                                             if (node.material) {
                                                 node.material.visible = true;
                                                 node.material.opacity = 1.0;
@@ -744,20 +913,20 @@
                                                 node.material.needsUpdate = true;
                                                 node.material.side = 2; // THREE.DoubleSide
                                             }
-                                            
+
                                             // Verify changes
                                             console.log('    ✓ AFTER FIX - frustumCulled:', node.frustumCulled);
                                             console.log('    ✓ AFTER FIX - renderOrder:', node.renderOrder);
                                             console.log('    ✓ AFTER FIX - material.side:', node.material?.side);
                                         }
                                     });
-                                    
+
                                     console.log('🔧 Forced all meshes visible, opaque, and disabled frustum culling');
-                                    
+
                                     // Force entire model to be visible and non-culled
                                     model.visible = true;
                                     model.frustumCulled = false;
-                                    
+
                                     // Force the entity to update
                                     hiroEntity.object3D.visible = true;
                                     hiroEntity.object3D.matrixWorldNeedsUpdate = true;
@@ -766,25 +935,25 @@
                         } else {
                             console.error('❌ Hiro model entity NOT found');
                         }
-                        
+
                         if (marsEntity) {
                             console.log('✓ Mars model found:', marsEntity.tagName, 'src:', marsEntity.getAttribute('src'));
                             console.log('  - Has gltf-model component?', marsEntity.components['gltf-model'] !== undefined);
-                            
+
                             marsEntity.addEventListener('loaded', () => {
                                 console.log('✅ Mars: "loaded" event fired');
                             });
-                            
+
                             marsEntity.addEventListener('model-loaded', (e) => {
                                 console.log('✅ Mars: "model-loaded" event fired!', e.detail);
-                                statusIndicator.textContent = '✅ Mars model loaded!';
+                                statusIndicator.textContent = '✅ ¡Modelo de Marte cargado!';
                                 statusIndicator.classList.add('success', 'show');
                             });
-                            
+
                             marsEntity.addEventListener('model-error', (e) => {
                                 console.error('❌ Mars: "model-error" event:', e.detail);
                             });
-                            
+
                             setTimeout(() => {
                                 console.log('⏱️ Mars model after 3s:');
                                 const model = marsEntity.components['gltf-model']?.model;
@@ -793,7 +962,7 @@
                                     console.log('  - Model visible:', model.visible);
                                     model.visible = true;
                                     model.frustumCulled = false;
-                                    
+
                                     // Apply to all meshes
                                     model.traverse((node) => {
                                         if (node.isMesh) {
@@ -806,32 +975,32 @@
                                             }
                                         }
                                     });
-                                    
+
                                     console.log('  - Applied fixes to Mars model');
                                 }
                             }, 3000);
                         } else {
                             console.error('❌ Mars model entity NOT found');
                         }
-                        
+
                         if (jupiterEntity) {
                             console.log('✓ Jupiter model found:', jupiterEntity.tagName, 'src:', jupiterEntity.getAttribute('src'));
                             console.log('  - Has gltf-model component?', jupiterEntity.components['gltf-model'] !== undefined);
-                            
+
                             jupiterEntity.addEventListener('loaded', () => {
                                 console.log('✅ Jupiter: "loaded" event fired');
                             });
-                            
+
                             jupiterEntity.addEventListener('model-loaded', (e) => {
                                 console.log('✅ Jupiter: "model-loaded" event fired!', e.detail);
-                                statusIndicator.textContent = '✅ Jupiter model loaded!';
+                                statusIndicator.textContent = '✅ ¡Modelo de Júpiter cargado!';
                                 statusIndicator.classList.add('success', 'show');
                             });
-                            
+
                             jupiterEntity.addEventListener('model-error', (e) => {
                                 console.error('❌ Jupiter: "model-error" event:', e.detail);
                             });
-                            
+
                             setTimeout(() => {
                                 console.log('⏱️ Jupiter model after 3s:');
                                 const model = jupiterEntity.components['gltf-model']?.model;
@@ -840,7 +1009,7 @@
                                     console.log('  - Model visible:', model.visible);
                                     model.visible = true;
                                     model.frustumCulled = false;
-                                    
+
                                     // Apply to all meshes
                                     model.traverse((node) => {
                                         if (node.isMesh) {
@@ -853,34 +1022,34 @@
                                             }
                                         }
                                     });
-                                    
+
                                     console.log('  - Applied fixes to Jupiter model');
                                 }
                             }, 3000);
                         } else {
                             console.error('❌ Jupiter model entity NOT found');
                         }
-                        
+
                         console.log('🔍 === END DEBUGGING ===');
                     };
-                    
+
                     // Listen for asset loading events
                     const assets = document.querySelector('a-assets');
                     if (assets) {
                         console.log('Assets container found, monitoring asset loading...');
-                        
+
                         assets.addEventListener('loaded', () => {
                             console.log('✅ All assets loaded successfully!');
                         });
-                        
+
                         assets.addEventListener('timeout', () => {
                             console.error('❌ Asset loading timeout!');
                         });
-                        
+
                         // Check individual asset items
                         const marsAsset = document.querySelector('#marsGLB');
                         const jupiterAsset = document.querySelector('#jupiterGLB');
-                        
+
                         if (marsAsset) {
                             console.log('Mars asset item found, loading:', marsAsset.getAttribute('src'));
                         }
@@ -911,21 +1080,21 @@
                 
                 // Show error message
                 spinner.style.display = 'none';
-                statusIndicator.textContent = '✕ Camera access failed';
+                statusIndicator.textContent = '✕ Falló el acceso a la cámara';
                 statusIndicator.classList.add('error', 'show');
                 
                 // Create detailed error message
                 let errorDetails = '';
                 if (error.name === 'NotAllowedError') {
-                    errorDetails = 'Camera permission was denied. Please allow camera access in your browser settings and try again.';
+                    errorDetails = 'Se denegó el permiso de la cámara. Por favor, permite el acceso a la cámara en la configuración de tu navegador e intenta de nuevo.';
                 } else if (error.name === 'NotFoundError') {
-                    errorDetails = 'No camera found on this device. Please connect a camera and try again.';
+                    errorDetails = 'No se encontró ninguna cámara en este dispositivo. Por favor, conecta una cámara e intenta de nuevo.';
                 } else if (error.name === 'NotReadableError') {
-                    errorDetails = 'Camera is already in use by another application. Please close other apps using the camera.';
+                    errorDetails = 'La cámara ya está siendo usada por otra aplicación. Por favor, cierra otras aplicaciones que usen la cámara.';
                 } else if (error.name === 'OverconstrainedError') {
-                    errorDetails = 'Camera constraints not supported. Trying alternative camera...';
+                    errorDetails = 'Las restricciones de la cámara no son compatibles. Intentando cámara alternativa...';
                 } else if (error.message.includes('not supported')) {
-                    errorDetails = 'Your browser does not support camera access. Please use Chrome, Firefox, or Safari.';
+                    errorDetails = 'Tu navegador no soporta el acceso a la cámara. Por favor usa Chrome, Firefox o Safari.';
                 } else {
                     errorDetails = `Error: ${error.message}`;
                 }
@@ -942,19 +1111,19 @@
                     line-height: 1.5;
                 `;
                 errorMsg.innerHTML = `
-                    <strong style="font-size: 1.2em;">⚠️ Camera Error</strong><br><br>
+                    <strong style="font-size: 1.2em;">⚠️ Error de Cámara</strong><br><br>
                     ${errorDetails}
                     <br><br>
-                    <strong>Troubleshooting:</strong><br>
-                    • Make sure you're on HTTPS or localhost<br>
-                    • Check browser camera permissions<br>
-                    • Close other apps using the camera<br>
-                    • Try a different browser
+                    <strong>Solución de problemas:</strong><br>
+                    • Asegúrate de estar en HTTPS o localhost<br>
+                    • Verifica los permisos de cámara del navegador<br>
+                    • Cierra otras aplicaciones que usen la cámara<br>
+                    • Prueba con un navegador diferente
                 `;
                 overlay.appendChild(errorMsg);
                 
                 startBtn.style.display = 'block';
-                startBtn.textContent = 'Try Again';
+                startBtn.textContent = 'Intentar de Nuevo';
             }
         }
 
@@ -962,7 +1131,7 @@
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
                     const status = document.getElementById('statusIndicator');
-                    status.textContent = '✕ Fullscreen not available';
+                    status.textContent = '✕ Pantalla completa no disponible';
                     status.classList.add('error', 'show');
                     setTimeout(() => {
                         status.classList.remove('show', 'error');
@@ -979,4 +1148,5 @@
         }
     </script>
 </body>
+
 </html>
