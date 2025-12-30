@@ -456,18 +456,100 @@
         let currentScene = null;
         let currentAppUrl = window.location.href;
 
+        // ========================================
+        // AR POSITIONING CONFIGURATION
+        // ========================================
+        // These constants control the position of planets and hint texts
+        // Modify these values to adjust all markers at once
+        const AR_CONFIG = {
+            // Planet model positions (Y = height above marker)
+            PLANET_HEIGHT: 2.0,           // Height of planets above marker (in meters)
+            PLANET_HEIGHT_SUN: 2.5,       // Special height for Sun (larger, needs more space)
+            
+            // Hint text positions (Z = distance from marker center)
+            HINT_DISTANCE: 2.5,           // Distance of hint text from marker center (in meters)
+            
+            // Text properties
+            HINT_ROTATION: "-90 0 0",     // Rotation to lay text flat on marker surface
+            HINT_SCALE: "1.5 1.5 1.5",    // Scale of hint text
+            
+            // Lighting
+            AMBIENT_INTENSITY: 2,       // Ambient light intensity
+            AMBIENT_INTENSITY_NEPTUNE: 2.0, // Special ambient for Neptune
+            AMBIENT_INTENSITY_PLUTO: 1.2,   // Special ambient for Pluto
+            DIRECTIONAL_INTENSITY: 4.0,   // Directional light intensity
+            DIRECTIONAL_INTENSITY_PLUTO: 4.0, // Special directional for Pluto
+            DIRECTIONAL_POSITION: "8 8 8", // Directional light position
+            
+            // Marker IDs (3x3 barcode values)
+            MARKERS: {
+                HIRO: "hiro",         // Test marker (pattern-based)
+                SUN: 0,               // Barcode marker for Sun
+                MERCURY: 10,          // Barcode marker for Mercury
+                VENUS: 11,            // Barcode marker for Venus
+                EARTH: 3,             // Barcode marker for Earth
+                MARS: 12,             // Barcode marker for Mars
+                JUPITER: 5,           // Barcode marker for Jupiter
+                SATURN: 6,            // Barcode marker for Saturn
+                URANUS: 20,           // Barcode marker for Uranus
+                NEPTUNE: 18,          // Barcode marker for Neptune
+                PLUTO: 9              // Barcode marker for Pluto
+            },
+            
+            // Planet scales (compensate for inconsistent model sizes)
+            SCALES: {
+                SUN: "0.18 0.18 0.18",           // Sun - reduced to prevent oversizing
+                MERCURY: "0.1375 0.1375 0.1375", // Mercury - smallest planet
+                VENUS: "0.1925 0.1925 0.1925",   // Venus - similar to Earth
+                EARTH: "0.8 0.8 0.8",   // Earth - reference size
+                MARS: "0.04 0.04 0.04",       // Mars - smaller than Earth
+                JUPITER: "0.002 0.002 0.002",          // Jupiter - largest planet (gas giant) - REDUCED for visibility
+                SATURN: "0.8 0.8 0.8",  // Saturn - large with rings
+                URANUS: "7 7 7",  // Uranus - ice giant
+                NEPTUNE: "0.005 0.005 0.005", // Neptune - similar to Uranus
+                PLUTO: "0.25 0.25 0.25"       // Pluto - smallest (dwarf planet)
+            }
+        };
+        
+        /* 
+         * USAGE EXAMPLES:
+         * 
+         * To move all planets higher or lower:
+         *   Change PLANET_HEIGHT (e.g., from 1.0 to 1.5)
+         * 
+         * To move hint texts closer or farther:
+         *   Change HINT_DISTANCE (e.g., from 2.5 to 3.0)
+         * 
+         * To make hint text larger or smaller:
+         *   Change HINT_SCALE (e.g., from "1.5 1.5 1.5" to "2.0 2.0 2.0")
+         * 
+         * To adjust brightness:
+         *   Change AMBIENT_INTENSITY or DIRECTIONAL_INTENSITY
+         * 
+         * To change a planet's scale:
+         *   Modify the corresponding entry in SCALES (e.g., SCALES.JUPITER)
+         * 
+         * To reassign marker IDs:
+         *   Update the values in MARKERS object
+         * 
+         * Note: Sun has its own height setting (PLANET_HEIGHT_SUN)
+         *       Neptune and Pluto have special lighting settings
+         */
+
         // Available models with barcode markers
+        // NOTE: Marker IDs are now centralized in AR_CONFIG.MARKERS
+        //       To change a marker ID, update it there instead
         const markerConfig = [
-            { id: 0, model: 'Sol', file: 'models/sun.glb', active: true },
-            { id: 10, model: 'Mercurio', file: 'models/mercury.glb', active: true },
-            { id: 11, model: 'Venus', file: 'models/venus.glb', active: true },
-            { id: 3, model: 'Tierra', file: 'models/earth.glb', active: true },
-            { id: 12, model: 'Marte', file: 'models/mars.glb', active: true },
-            { id: 5, model: 'Júpiter', file: 'models/jupiter.glb', active: true },
-            { id: 6, model: 'Saturno', file: 'models/saturn.glb', active: true },
-            { id: 13, model: 'Urano', file: 'models/uranus.glb', active: true },
-            { id: 14, model: 'Neptuno', file: 'models/neptune.glb', active: true },
-            { id: 9, model: 'Plutón', file: 'models/pluto.glb', active: true }
+            { id: AR_CONFIG.MARKERS.SUN, model: 'Sol', file: 'models/sun.glb', active: true },
+            { id: AR_CONFIG.MARKERS.MERCURY, model: 'Mercurio', file: 'models/mercury.glb', active: true },
+            { id: AR_CONFIG.MARKERS.VENUS, model: 'Venus', file: 'models/venus.glb', active: true },
+            { id: AR_CONFIG.MARKERS.EARTH, model: 'Tierra', file: 'models/earth.glb', active: true },
+            { id: AR_CONFIG.MARKERS.MARS, model: 'Marte', file: 'models/mars.glb', active: true },
+            { id: AR_CONFIG.MARKERS.JUPITER, model: 'Júpiter', file: 'models/jupiter.glb', active: true },
+            { id: AR_CONFIG.MARKERS.SATURN, model: 'Saturno', file: 'models/saturn.glb', active: true },
+            { id: AR_CONFIG.MARKERS.URANUS, model: 'Urano', file: 'models/uranus.glb', active: true },
+            { id: AR_CONFIG.MARKERS.NEPTUNE, model: 'Neptuno', file: 'models/neptune.glb', active: true },
+            { id: AR_CONFIG.MARKERS.PLUTO, model: 'Plutón', file: 'models/pluto.glb', active: true }
         ];
 
         // Generate marker cards for each model
@@ -671,102 +753,102 @@
                         vr-mode-ui="enabled: false">
                         
                         <!-- HIRO PATTERN MARKER (TEST MARKER) -->
-                        <a-marker preset="hiro" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/earth.glb)" position="0 0.5 0" scale="0.1925 0.1925 0.1925" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker preset="${AR_CONFIG.MARKERS.HIRO}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/earth.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.EARTH}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="¡Soy el planeta de prueba!" align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="¡Soy el planeta de prueba!" align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
                         
                         <!-- Marker 0: Sun -->
-                        <a-marker type="barcode" value="0" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/sun.glb)" position="0 0.5 0" scale="0.28125 0.28125 0.28125" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.SUN}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/sun.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT_SUN} 0" scale="${AR_CONFIG.SCALES.SUN}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Soy la estrella reina,\ncaliente y brillante.\n¡Nadie esta antes que yo!" align="center" position="0.5 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFD700" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Soy la estrella reina,\ncaliente y brillante.\n¡Nadie esta antes que yo!" align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFD700" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 1: Mercury -->
-                        <a-marker type="barcode" value="10" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/mercury.glb)" position="0 0.5 0" scale="0.1375 0.1375 0.1375" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.MERCURY}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/mercury.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.MERCURY}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Soy el mas pequeño\ny el mas cercano al Sol.\n¡Nadie se interpone entre nosotros!" align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Soy el mas pequeño\ny el mas cercano al Sol.\n¡Nadie se interpone entre nosotros!" align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 2: Venus -->
-                        <a-marker type="barcode" value="11" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/venus.glb)" position="0 0.5 0" scale="0.1925 0.1925 0.1925" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.VENUS}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/venus.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.VENUS}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Brillo mas que nadie.\nEstoy despues del pequeño Mercurio\npero antes de la Tierra." align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Brillo mas que nadie.\nEstoy despues del pequeño Mercurio\npero antes de la Tierra." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 3: Earth -->
-                        <a-marker type="barcode" value="3" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/earth.glb)" position="0 0.5 0" scale="0.1925 0.1925 0.1925" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.EARTH}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/earth.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.EARTH}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Tu hogar azul y verde.\nVivo justo despues de Venus\ny antes del planeta rojo." align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#4CC3D9" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Tu hogar azul y verde.\nVivo justo despues de Venus\ny antes del planeta rojo." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#4CC3D9" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 4: Mars -->
-                        <a-marker type="barcode" value="12" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/mars.glb)" position="0 0.5 0" scale="0.165 0.165 0.165" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.MARS}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/mars.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.MARS}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Soy rojo y polvoriento.\nSigo a la Tierra,\npero el gigante Júpiter viene detras." align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FF6B6B" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Soy rojo y polvoriento.\nSigo a la Tierra,\npero el gigante Júpiter viene detras." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FF6B6B" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 5: Jupiter -->
-                        <a-marker type="barcode" value="5" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/jupiter.glb)" position="0 0.5 0" scale="0.33 0.33 0.33" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.JUPITER}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity id="jupiterModel" gltf-model="url(models/jupiter.glb)" animation-mixer="clip: *; loop: once; clampWhenFinished: true" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.JUPITER}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="¡Soy el rey gigante!\nProtejo a Marte que esta antes,\ny Saturno me sigue." align="center" position="0.5 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="¡Soy el rey gigante!\nProtejo a Marte que esta antes,\ny Saturno me sigue." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 6: Saturn -->
-                        <a-marker type="barcode" value="6" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/saturn.glb)" position="0 0.5 0" scale="0.3025 0.3025 0.3025" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.SATURN}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/saturn.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.SATURN}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Mis anillos son famosos.\nVoy despues del gigante Júpiter\ny antes del helado Urano." align="center" position="0.5 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Mis anillos son famosos.\nVoy despues del gigante Jupiter\ny antes del helado Urano." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 7: Uranus -->
-                        <a-marker type="barcode" value="13" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/uranus.glb)" position="0 0.5 0" scale="0.2475 0.2475 0.2475" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.URANUS}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/uranus.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.URANUS}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Giro de lado y hace frio.\nSaturno esta detras de mi,\ny Neptuno esta delante." align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#AEEEEE" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Giro de lado y hace frio.\nSaturno esta detras de mi,\ny Neptuno esta delante." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#AEEEEE" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 8: Neptune -->
-                        <a-marker type="barcode" value="14" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/neptune.glb)" position="0 0.5 0" scale="0.2475 0.2475 0.2475" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.NEPTUNE}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY_NEPTUNE}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/neptune.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.NEPTUNE}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Soy azul y ventoso.\nUrano es mi vecino anterior,\ny solo queda el pequeño Plutón." align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#4169E1" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Soy azul y ventoso.\nUrano es mi vecino anterior,\ny solo queda el pequeño Plutón." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#4169E1" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
 
                         <!-- Marker 9: Pluto -->
-                        <a-marker type="barcode" value="9" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-                            <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-                            <a-light type="directional" color="#fff" intensity="2.0" position="1 2 1"></a-light>
-                            <a-entity gltf-model="url(models/pluto.glb)" position="0 0.5 0" scale="0.075 0.075 0.075" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
+                        <a-marker type="barcode" value="${AR_CONFIG.MARKERS.PLUTO}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+                            <a-light type="ambient" color="#fff" intensity="${AR_CONFIG.AMBIENT_INTENSITY_PLUTO}"></a-light>
+                            <a-light type="directional" color="#fff" intensity="${AR_CONFIG.DIRECTIONAL_INTENSITY_PLUTO}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-light>
+                            <a-entity gltf-model="url(models/pluto.glb)" position="0 ${AR_CONFIG.PLANET_HEIGHT} 0" scale="${AR_CONFIG.SCALES.PLUTO}" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear"></a-entity>
                             <!-- Hint Text -->
-                            <a-text value="Soy el ultimo de la fila.\nEstoy tan lejos que Neptuno\napenas se ve desde aqui." align="center" position="0.4 0.05 0" rotation="-90 0 0" scale="1.5 1.5 1.5" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
+                            <a-text value="Soy el ultimo de la fila.\nEstoy tan lejos que Neptuno\napenas se ve desde aqui." align="center" position="0 0 ${AR_CONFIG.HINT_DISTANCE}" rotation="${AR_CONFIG.HINT_ROTATION}" scale="${AR_CONFIG.HINT_SCALE}" color="#FFF" shader="msdf" font="https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/roboto/Roboto-Bold.json"></a-text>
                         </a-marker>
                         
                         <a-entity camera></a-entity>
