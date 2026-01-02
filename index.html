@@ -477,10 +477,6 @@
             AMBIENT_INTENSITY: 1.8,         // Global ambient light intensity
             DIRECTIONAL_INTENSITY: 3.5,     // Global directional light intensity
             DIRECTIONAL_POSITION: "8 8 8",  // Global directional light position
-            // Note: Special intensities for Neptune/Pluto are no longer needed with global lighting
-            AMBIENT_INTENSITY_NEPTUNE: 2.0, // [DEPRECATED] Previously used for Neptune-specific lighting
-            AMBIENT_INTENSITY_PLUTO: 1.2,   // [DEPRECATED] Previously used for Pluto-specific lighting
-            DIRECTIONAL_INTENSITY_PLUTO: 4.0, // [DEPRECATED] Previously used for Pluto-specific lighting
             
             // Marker IDs (3x3 barcode values)
             MARKERS: {
@@ -754,8 +750,8 @@
                         vr-mode-ui="enabled: false">
                         
                         <!-- GLOBAL LIGHTING SYSTEM - Applied to all markers -->
-                        <a-entity id="globalAmbient" light="type: ambient; color: #ffffff; intensity: 1.8"></a-entity>
-                        <a-entity id="globalDirectional" light="type: directional; color: #ffffff; intensity: 3.5" position="8 8 8"></a-entity>
+                        <a-entity id="globalAmbient" light="type: ambient; color: #ffffff; intensity: ${AR_CONFIG.AMBIENT_INTENSITY}"></a-entity>
+                        <a-entity id="globalDirectional" light="type: directional; color: #ffffff; intensity: ${AR_CONFIG.DIRECTIONAL_INTENSITY}" position="${AR_CONFIG.DIRECTIONAL_POSITION}"></a-entity>
                         
                         <!-- HIRO PATTERN MARKER (TEST MARKER) -->
                         <a-marker preset="${AR_CONFIG.MARKERS.HIRO}" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
