@@ -474,9 +474,13 @@
             HINT_SCALE: "1.5 1.5 1.5",    // Scale of hint text
             
             // Lighting (GLOBAL - applied to entire scene)
+            // Global lighting replaces per-marker lights for better performance
+            // Previous implementation used special values for Neptune (ambient: 2.0) and Pluto (ambient: 1.2, directional: 4.0)
+            // With global lighting, uniform illumination is achieved across all models
             AMBIENT_INTENSITY: 1.8,         // Global ambient light intensity
             DIRECTIONAL_INTENSITY: 3.5,     // Global directional light intensity
             DIRECTIONAL_POSITION: "8 8 8",  // Global directional light position
+            // Note: Shadows are disabled for AR performance optimization
             
             // Marker IDs (3x3 barcode values)
             MARKERS: {
